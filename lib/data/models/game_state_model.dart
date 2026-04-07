@@ -1,4 +1,5 @@
 import 'player_model.dart';
+import 'puzzle_model.dart';
 import 'tile_model.dart';
 
 class GameStateModel {
@@ -8,6 +9,9 @@ class GameStateModel {
   final PlayerModel player;
   final PlayerModel opponent;
   final bool isPlayerTurn;
+  final int? selectedHandIndex;
+  final PuzzleModel puzzle;
+  final String? activeClue;
 
   const GameStateModel({
     required this.board,
@@ -16,6 +20,9 @@ class GameStateModel {
     required this.player,
     required this.opponent,
     required this.isPlayerTurn,
+    required this.puzzle,
+    this.selectedHandIndex,
+    this.activeClue,
   });
 
   GameStateModel copyWith({
@@ -25,6 +32,11 @@ class GameStateModel {
     PlayerModel? player,
     PlayerModel? opponent,
     bool? isPlayerTurn,
+    int? selectedHandIndex,
+    PuzzleModel? puzzle,
+    String? activeClue,
+    bool clearSelectedHand = false,
+    bool clearActiveClue = false,
   }) {
     return GameStateModel(
       board: board ?? this.board,
@@ -33,6 +45,18 @@ class GameStateModel {
       player: player ?? this.player,
       opponent: opponent ?? this.opponent,
       isPlayerTurn: isPlayerTurn ?? this.isPlayerTurn,
+      selectedHandIndex:
+          clearSelectedHand ? null : (selectedHandIndex ?? this.selectedHandIndex),
+      puzzle: puzzle ?? this.puzzle,
+      activeClue: clearActiveClue ? null : (activeClue ?? this.activeClue),
     );
+  }
+
+  bool get isGameOver {
+    final correct = puzzle.correctLetters;
+    return correct.keys.every((pos) {
+      final idx = pos.$1 * puzzle.gridSize + pos.$2;
+      return idx < board.length && board[idx].letter != null;
+    });
   }
 }

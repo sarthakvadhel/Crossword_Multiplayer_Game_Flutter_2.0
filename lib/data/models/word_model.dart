@@ -1,27 +1,39 @@
+enum WordDirection { across, down }
+
 class WordModel {
+  final int id;
   final String clue;
   final String answer;
-  final List<int> positions;
-  final String? imageAsset;
+  final int startRow;
+  final int startCol;
+  final WordDirection direction;
   final bool isCompleted;
 
   const WordModel({
+    required this.id,
     required this.clue,
     required this.answer,
-    required this.positions,
-    this.imageAsset,
+    required this.startRow,
+    required this.startCol,
+    required this.direction,
     this.isCompleted = false,
   });
 
-  WordModel copyWith({
-    bool? isCompleted,
-  }) {
-    return WordModel(
-      clue: clue,
-      answer: answer,
-      positions: positions,
-      imageAsset: imageAsset,
-      isCompleted: isCompleted ?? this.isCompleted,
-    );
+  List<(int, int)> get positions {
+    return List.generate(answer.length, (i) {
+      return direction == WordDirection.across
+          ? (startRow, startCol + i)
+          : (startRow + i, startCol);
+    });
   }
+
+  WordModel copyWith({bool? isCompleted}) => WordModel(
+        id: id,
+        clue: clue,
+        answer: answer,
+        startRow: startRow,
+        startCol: startCol,
+        direction: direction,
+        isCompleted: isCompleted ?? this.isCompleted,
+      );
 }

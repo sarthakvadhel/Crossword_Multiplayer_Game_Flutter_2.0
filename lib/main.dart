@@ -54,7 +54,7 @@ class _MainShellState extends State<MainShell> {
         selectedItemColor: AppColors.primary,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Main'),
-          BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Daily'),
+          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Multiplayer'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Me'),
         ],
       ),
