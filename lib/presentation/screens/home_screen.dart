@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../widgets/animated_card_tap.dart';
 import '../widgets/animated_new_game_button.dart';
 import '../widgets/multiplayer_mode_card.dart';
 import '../widgets/tournament_card.dart';
@@ -49,19 +50,25 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     // Multiplayer Mode Card
                     Expanded(
-                      child: MultiplayerModeCard(
-                        onlinePlayers: 42,
-                        onPlay: onMultiplayer,
+                      child: AnimatedCardTap(
+                        onTap: onMultiplayer,
+                        child: MultiplayerModeCard(
+                          onlinePlayers: 42,
+                          onPlay: onMultiplayer,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
                     // Tournament Card
                     Expanded(
-                      child: TournamentCard(
-                        timeRemaining: '4d 17h',
-                        score: 42,
-                        onPlay: onMultiplayer,
-                        buttonLabel: 'Play Tournament',
+                      child: AnimatedCardTap(
+                        onTap: onMultiplayer,
+                        child: TournamentCard(
+                          timeRemaining: '4d 17h',
+                          score: 42,
+                          onPlay: onMultiplayer,
+                          buttonLabel: 'Play Tournament',
+                        ),
                       ),
                     ),
                   ],

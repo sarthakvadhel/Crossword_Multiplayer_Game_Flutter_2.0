@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
+import 'tap_bounce.dart';
 
 class TournamentCard extends StatelessWidget {
   const TournamentCard({
@@ -75,22 +76,25 @@ class TournamentCard extends StatelessWidget {
                 SizedBox(
                   height: 44,
                   width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: onPlay,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.tournamentPlayButton,
-                      elevation: 4,
-                      shadowColor: AppColors.tournamentPlayButton.withOpacity(0.4),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                  child: TapBounce(
+                    child: ElevatedButton(
+                      onPressed: onPlay,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.tournamentPlayButton,
+                        elevation: 4,
+                        shadowColor:
+                            AppColors.tournamentPlayButton.withOpacity(0.4),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      buttonLabel,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textLight,
+                      child: Text(
+                        buttonLabel,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textLight,
+                        ),
                       ),
                     ),
                   ),

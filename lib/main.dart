@@ -32,15 +32,48 @@ class MainShell extends ConsumerStatefulWidget {
   ConsumerState<MainShell> createState() => _MainShellState();
 }
 
-class _MainShellState extends ConsumerState<MainShell> {
+class _MainShellState extends ConsumerState<MainShell>
+    with SingleTickerProviderStateMixin {
   int _index = 0;
+  late final AnimationController _screenTransitionController;
+  late final Animation<double> _screenTransition;
+  double _slideDirection = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    _screenTransitionController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 260),
+      value: 1,
+    );
+    _screenTransition = CurvedAnimation(
+      parent: _screenTransitionController,
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  @override
+  void dispose() {
+    _screenTransitionController.dispose();
+    super.dispose();
+  }
+
+  void _animateToIndex(int value) {
+    if (value == _index) {
+      return;
+    }
+    _slideDirection = value > _index ? 1 : -1;
+    setState(() => _index = value);
+    _screenTransitionController.forward(from: 0);
+  }
 
   Future<void> _startSoloGame() async {
     await ref.read(gameProvider.notifier).startSoloPractice();
     if (!mounted) {
       return;
     }
-    setState(() => _index = 1);
+    _animateToIndex(1);
   }
 
   Future<void> _openMultiplayerSheet() async {
@@ -54,7 +87,7 @@ class _MainShellState extends ConsumerState<MainShell> {
             final error =
                 await ref.read(gameProvider.notifier).hostMultiplayer(name);
             if (error == null && mounted) {
-              setState(() => _index = 1);
+              _animateToIndex(1);
             }
             return error;
           },
@@ -63,7 +96,7 @@ class _MainShellState extends ConsumerState<MainShell> {
                 .read(gameProvider.notifier)
                 .joinMultiplayer(name, roomCode);
             if (error == null && mounted) {
-              setState(() => _index = 1);
+              _animateToIndex(1);
             }
             return error;
           },
@@ -77,20 +110,34 @@ class _MainShellState extends ConsumerState<MainShell> {
     final gameState = ref.watch(gameProvider);
 
     return Scaffold(
-      body: IndexedStack(
-        index: _index,
-        children: [
-          HomeScreen(
-            onContinue: _startSoloGame,
-            onRestart: _startSoloGame,
-            onMultiplayer: _openMultiplayerSheet,
-            statusText: gameState.connectionStatus,
-            roomCode: gameState.sessionCode,
-            isMultiplayerActive: gameState.isMultiplayer,
-          ),
-          const GameScreen(),
-          const ProfileScreen(),
-        ],
+      body: AnimatedBuilder(
+        animation: _screenTransition,
+        builder: (context, child) {
+          final t = _screenTransition.value;
+          final slideX = (1 - t) * 24 * _slideDirection;
+          return Opacity(
+            opacity: t,
+            child: Transform.translate(
+              offset: Offset(slideX, 0),
+              child: child,
+            ),
+          );
+        },
+        child: IndexedStack(
+          index: _index,
+          children: [
+            HomeScreen(
+              onContinue: _startSoloGame,
+              onRestart: _startSoloGame,
+              onMultiplayer: _openMultiplayerSheet,
+              statusText: gameState.connectionStatus,
+              roomCode: gameState.sessionCode,
+              isMultiplayerActive: gameState.isMultiplayer,
+            ),
+            const GameScreen(),
+            const ProfileScreen(),
+          ],
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _index == 1 ? 0 : _index,
@@ -99,7 +146,7 @@ class _MainShellState extends ConsumerState<MainShell> {
           if (value == 1) {
             _openMultiplayerSheet();
           } else {
-            setState(() => _index = value);
+            _animateToIndex(value);
           }
         },
         items: const [
