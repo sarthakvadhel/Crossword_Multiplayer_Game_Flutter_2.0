@@ -90,7 +90,7 @@ class TournamentCard extends StatelessWidget {
                       ),
                       child: Text(
                         buttonLabel,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: AppColors.textLight,

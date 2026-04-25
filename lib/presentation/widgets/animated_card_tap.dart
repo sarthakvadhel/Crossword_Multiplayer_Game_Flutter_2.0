@@ -4,12 +4,12 @@ class AnimatedCardTap extends StatefulWidget {
   const AnimatedCardTap({
     super.key,
     required this.child,
-    required this.onTap,
+    this.onTap,
     this.borderRadius = const BorderRadius.all(Radius.circular(24)),
   });
 
   final Widget child;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final BorderRadius borderRadius;
 
   @override

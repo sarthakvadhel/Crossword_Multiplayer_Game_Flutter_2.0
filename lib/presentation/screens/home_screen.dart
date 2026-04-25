@@ -51,7 +51,6 @@ class HomeScreen extends StatelessWidget {
                     // Multiplayer Mode Card
                     Expanded(
                       child: AnimatedCardTap(
-                        onTap: onMultiplayer,
                         child: MultiplayerModeCard(
                           onlinePlayers: 42,
                           onPlay: onMultiplayer,
@@ -62,7 +61,6 @@ class HomeScreen extends StatelessWidget {
                     // Tournament Card
                     Expanded(
                       child: AnimatedCardTap(
-                        onTap: onMultiplayer,
                         child: TournamentCard(
                           timeRemaining: '4d 17h',
                           score: 42,
