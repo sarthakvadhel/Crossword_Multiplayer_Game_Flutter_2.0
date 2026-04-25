@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
 import 'presentation/screens/game_screen.dart';
 import 'presentation/screens/home_screen.dart';
-import 'presentation/screens/multiplayer_setup_sheet.dart';
+import 'presentation/screens/multiplayer_lobby_screen.dart';
 import 'presentation/screens/profile_screen.dart';
 import 'state/game_provider.dart';
 
@@ -34,7 +34,12 @@ class MainShell extends ConsumerStatefulWidget {
 
 class _MainShellState extends ConsumerState<MainShell>
     with SingleTickerProviderStateMixin {
-  int _index = 0;
+  static const int _homeIndex = 0;
+  static const int _lobbyIndex = 1;
+  static const int _gameIndex = 2;
+  static const int _profileIndex = 3;
+
+  int _index = _homeIndex;
   late final AnimationController _screenTransitionController;
   late final Animation<double> _screenTransition;
   double _slideDirection = 1;
@@ -73,36 +78,38 @@ class _MainShellState extends ConsumerState<MainShell>
     if (!mounted) {
       return;
     }
-    _animateToIndex(1);
+    _animateToIndex(_gameIndex);
   }
 
-  Future<void> _openMultiplayerSheet() async {
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return MultiplayerSetupSheet(
-          onHostRoom: (name) async {
-            final error =
-                await ref.read(gameProvider.notifier).hostMultiplayer(name);
-            if (error == null && mounted) {
-              _animateToIndex(1);
-            }
-            return error;
-          },
-          onJoinRoom: (name, roomCode) async {
-            final error = await ref
-                .read(gameProvider.notifier)
-                .joinMultiplayer(name, roomCode);
-            if (error == null && mounted) {
-              _animateToIndex(1);
-            }
-            return error;
-          },
-        );
-      },
-    );
+  Future<void> _openMultiplayerLobby() async {
+    _animateToIndex(_lobbyIndex);
+  }
+
+  Future<String?> _hostMultiplayerFromLobby(String name) async {
+    final error = await ref.read(gameProvider.notifier).hostMultiplayer(name);
+    if (error == null && mounted) {
+      _animateToIndex(_gameIndex);
+    }
+    return error;
+  }
+
+  Future<String?> _joinMultiplayerFromLobby(String name, String roomCode) async {
+    final error =
+        await ref.read(gameProvider.notifier).joinMultiplayer(name, roomCode);
+    if (error == null && mounted) {
+      _animateToIndex(_gameIndex);
+    }
+    return error;
+  }
+
+  int _bottomNavIndexForBody(int index) {
+    if (index == _homeIndex || index == _gameIndex) {
+      return 0;
+    }
+    if (index == _lobbyIndex) {
+      return 1;
+    }
+    return 2;
   }
 
   @override
@@ -129,10 +136,16 @@ class _MainShellState extends ConsumerState<MainShell>
             HomeScreen(
               onContinue: _startSoloGame,
               onRestart: _startSoloGame,
-              onMultiplayer: _openMultiplayerSheet,
+              onMultiplayer: _openMultiplayerLobby,
               statusText: gameState.connectionStatus,
               roomCode: gameState.sessionCode,
               isMultiplayerActive: gameState.isMultiplayer,
+            ),
+            MultiplayerLobbyScreen(
+              gameState: gameState,
+              onCreateRoom: _hostMultiplayerFromLobby,
+              onJoinRoom: _joinMultiplayerFromLobby,
+              onRoomConnected: () => _animateToIndex(_gameIndex),
             ),
             const GameScreen(),
             const ProfileScreen(),
@@ -140,13 +153,15 @@ class _MainShellState extends ConsumerState<MainShell>
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _index == 1 ? 0 : _index,
+        currentIndex: _bottomNavIndexForBody(_index),
         onTap: (value) {
-          // When Multiplayer tab (index 1) is tapped, open the sheet
+          // Main / Multiplayer / Me tabs.
           if (value == 1) {
-            _openMultiplayerSheet();
+            _openMultiplayerLobby();
+          } else if (value == 2) {
+            _animateToIndex(_profileIndex);
           } else {
-            _animateToIndex(value);
+            _animateToIndex(_homeIndex);
           }
         },
         items: const [
