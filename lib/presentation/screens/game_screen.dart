@@ -83,6 +83,9 @@ class GameScreen extends ConsumerWidget {
                 enabled: gameState.canLocalPlayerAct &&
                     gameState.selectedHandIndex != null,
                 onTileTap: gameNotifier.placeSelectedLetter,
+                isMultiplayer: gameState.isMultiplayer,
+                isLocalTurn: gameState.isPlayerTurn,
+                hasOpponent: gameState.hasOpponent,
               ),
             ),
           ),
