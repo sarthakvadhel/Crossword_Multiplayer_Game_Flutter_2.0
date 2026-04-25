@@ -7,11 +7,13 @@ class TournamentCard extends StatelessWidget {
     required this.timeRemaining,
     required this.score,
     required this.onPlay,
+    this.buttonLabel = 'Play',
   });
 
   final String timeRemaining;
   final int score;
   final VoidCallback onPlay;
+  final String buttonLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -83,8 +85,8 @@ class TournamentCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(20),
                       ),
                     ),
-                    child: const Text(
-                      'Play',
+                    child: Text(
+                      buttonLabel,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,

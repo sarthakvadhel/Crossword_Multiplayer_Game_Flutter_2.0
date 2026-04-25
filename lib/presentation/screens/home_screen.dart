@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../widgets/daily_puzzle_card.dart';
-import '../widgets/tournament_card.dart';
+
 import '../widgets/animated_new_game_button.dart';
+import '../widgets/multiplayer_mode_card.dart';
+import '../widgets/tournament_card.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({
@@ -23,9 +24,6 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final today = DateTime.now();
-    final dateStr = 'April ${today.day}';
-
     return SafeArea(
       child: SingleChildScrollView(
         child: Padding(
@@ -33,16 +31,27 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              const Text(
+                'Crossword Master',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1A2F5A),
+                ),
+              ),
+              const SizedBox(height: 36),
+
               // Top Cards Section
               SizedBox(
                 height: 280,
                 child: Row(
                   children: [
-                    // Daily Puzzle Card
+                    // Multiplayer Mode Card
                     Expanded(
-                      child: DailyPuzzleCard(
-                        date: dateStr,
-                        onPlay: onContinue,
+                      child: MultiplayerModeCard(
+                        onlinePlayers: 42,
+                        onPlay: onMultiplayer,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -52,21 +61,10 @@ class HomeScreen extends StatelessWidget {
                         timeRemaining: '4d 17h',
                         score: 42,
                         onPlay: onMultiplayer,
+                        buttonLabel: 'Play Tournament',
                       ),
                     ),
                   ],
-                ),
-              ),
-              const SizedBox(height: 48),
-
-              // Title
-              const Text(
-                'Crossword Master',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF1A2F5A),
                 ),
               ),
               const SizedBox(height: 64),
