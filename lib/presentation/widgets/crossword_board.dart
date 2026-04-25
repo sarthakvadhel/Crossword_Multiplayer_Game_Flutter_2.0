@@ -85,7 +85,7 @@ class _CrosswordBoardState extends State<CrosswordBoard> {
       child: GridView.builder(
         physics: const NeverScrollableScrollPhysics(),
         itemCount: widget.tiles.length,
-         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: widget.size,
           childAspectRatio: 1,
         ),
@@ -93,7 +93,7 @@ class _CrosswordBoardState extends State<CrosswordBoard> {
           final tile = widget.tiles[index];
           final canPlace = widget.enabled && tile.letter == null;
           final isActiveCell = _activePlayerCellIndex == index;
-          final hasOpponentCursor = _opponentCursorIndex == index;
+          final isOpponentCursor = _opponentCursorIndex == index;
           final isNewEntry = _entryFlashIndex == index;
           final isShaking = _invalidShakeIndex == index;
 
@@ -144,7 +144,7 @@ class _CrosswordBoardState extends State<CrosswordBoard> {
                   );
                   final borderColor = isActiveCell
                       ? AppColors.primary
-                      : hasOpponentCursor
+                      : isOpponentCursor
                           ? AppColors.danger
                           : AppColors.boardBorder;
 
@@ -156,7 +156,7 @@ class _CrosswordBoardState extends State<CrosswordBoard> {
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
                         color: borderColor,
-                        width: isActiveCell || hasOpponentCursor ? 2 : 1,
+                        width: isActiveCell || isOpponentCursor ? 2 : 1,
                       ),
                     ),
                     child: Stack(
@@ -189,7 +189,7 @@ class _CrosswordBoardState extends State<CrosswordBoard> {
                                   ),
                                 ),
                         ),
-                        if (hasOpponentCursor)
+                        if (isOpponentCursor)
                           Positioned(
                             top: 4,
                             right: 4,
