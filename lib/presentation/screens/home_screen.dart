@@ -11,6 +11,7 @@ class HomeScreen extends StatelessWidget {
     required this.onContinue,
     required this.onRestart,
     required this.onMultiplayer,
+    required this.onTournament,
     required this.statusText,
     required this.roomCode,
     required this.isMultiplayerActive,
@@ -19,6 +20,7 @@ class HomeScreen extends StatelessWidget {
   final Future<void> Function() onContinue;
   final Future<void> Function() onRestart;
   final Future<void> Function() onMultiplayer;
+  final Future<void> Function() onTournament;
   final String statusText;
   final String? roomCode;
   final bool isMultiplayerActive;
@@ -64,7 +66,7 @@ class HomeScreen extends StatelessWidget {
                         child: TournamentCard(
                           timeRemaining: '4d 17h',
                           score: 42,
-                          onPlay: onMultiplayer,
+                          onPlay: onTournament,
                           buttonLabel: 'Play Tournament',
                         ),
                       ),
