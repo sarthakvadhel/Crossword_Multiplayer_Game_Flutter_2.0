@@ -46,14 +46,14 @@ class PlayerTile extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
               color: isReady
-                  ? const Color(0xFFDCFCE7)
-                  : const Color(0xFFFFF4E5),
+                  ? AppColors.successSoft
+                  : AppColors.warningSoft,
               borderRadius: BorderRadius.circular(999),
             ),
             child: Text(
               isReady ? 'Ready' : 'Waiting',
               style: TextStyle(
-                color: isReady ? const Color(0xFF166534) : const Color(0xFF9A3412),
+                color: isReady ? AppColors.successText : AppColors.warningText,
                 fontWeight: FontWeight.w700,
                 fontSize: 12,
               ),

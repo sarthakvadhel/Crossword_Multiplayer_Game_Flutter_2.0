@@ -28,6 +28,12 @@ class AppColors {
 
   // Accent
   static const accent = Color(0xFFFFC466);
+  static const successSoft = Color(0xFFDCFCE7);
+  static const warningSoft = Color(0xFFFFF4E5);
+  static const successText = Color(0xFF166534);
+  static const warningText = Color(0xFF9A3412);
+  static const flashHighlight = Color(0xFF86EFAC);
+  static const danger = Color(0xFFEF4444);
 
   // Card Button Colors
   static const dailyPlayButton = Color(0xFF6BBFFF);

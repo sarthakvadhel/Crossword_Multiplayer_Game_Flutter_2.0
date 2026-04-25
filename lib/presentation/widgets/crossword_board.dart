@@ -30,6 +30,9 @@ class CrosswordBoard extends StatefulWidget {
 }
 
 class _CrosswordBoardState extends State<CrosswordBoard> {
+  static const _shakeFrequency = 4.0;
+  static const _shakeAmplitude = 6.0;
+
   late List<String?> _previousLetters;
   int? _activePlayerCellIndex;
   int? _opponentCursorIndex;
@@ -58,9 +61,10 @@ class _CrosswordBoardState extends State<CrosswordBoard> {
     }
     if (changedIndices.isNotEmpty) {
       final latestIndex = changedIndices.last;
+      final turnTransitionedToLocal = !oldWidget.isLocalTurn && widget.isLocalTurn;
       final opponentMoved = widget.isMultiplayer &&
           widget.hasOpponent &&
-          (!oldWidget.isLocalTurn && widget.isLocalTurn);
+          turnTransitionedToLocal;
       setState(() {
         _entryFlashIndex = latestIndex;
         _entryFlashEpoch++;
@@ -113,7 +117,10 @@ class _CrosswordBoardState extends State<CrosswordBoard> {
               tween: Tween<double>(begin: 0, end: isShaking ? 1 : 0),
               builder: (context, value, child) {
                 final offset = isShaking
-                    ? (value < 1 ? math.sin(value * math.pi * 4) * 6 : 0)
+                    ? (value < 1
+                        ? math.sin(value * math.pi * _shakeFrequency) *
+                            _shakeAmplitude
+                        : 0)
                     : 0.0;
                 return Transform.translate(
                   offset: Offset(offset, 0),
@@ -131,14 +138,14 @@ class _CrosswordBoardState extends State<CrosswordBoard> {
                           ? AppColors.accent.withValues(alpha: 0.28)
                           : AppColors.boardTile;
                   final flashColor = Color.lerp(
-                    const Color(0xFF86EFAC).withValues(alpha: 0.75),
+                    AppColors.flashHighlight.withValues(alpha: 0.75),
                     baseColor,
                     flashValue,
                   );
                   final borderColor = isActiveCell
                       ? AppColors.primary
                       : hasOpponentCursor
-                          ? const Color(0xFFEF4444)
+                          ? AppColors.danger
                           : AppColors.boardBorder;
 
                   return AnimatedContainer(
@@ -183,13 +190,13 @@ class _CrosswordBoardState extends State<CrosswordBoard> {
                                 ),
                         ),
                         if (hasOpponentCursor)
-                          const Positioned(
+                          Positioned(
                             top: 4,
                             right: 4,
-                            child: Icon(
+                            child: const Icon(
                               Icons.adjust_rounded,
                               size: 12,
-                              color: Color(0xFFEF4444),
+                              color: AppColors.danger,
                             ),
                           ),
                       ],
