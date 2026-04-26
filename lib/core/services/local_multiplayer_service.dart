@@ -2,6 +2,20 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+class LeaderboardPlayer {
+  const LeaderboardPlayer({
+    required this.id,
+    required this.name,
+    required this.score,
+    this.avatarUrl,
+  });
+
+  final String id;
+  final String name;
+  final int score;
+  final String? avatarUrl;
+}
+
 class HostedRoomInfo {
   const HostedRoomInfo({
     required this.host,
@@ -22,6 +36,44 @@ class LocalMultiplayerService {
   WebSocket? _socket;
 
   Stream<Map<String, dynamic>> get messages => _messagesController.stream;
+
+  Future<List<LeaderboardPlayer>> fetchLeaderboard({
+    required String currentPlayerId,
+    required String currentPlayerName,
+    required int currentPlayerScore,
+    String? currentPlayerAvatarUrl,
+  }) async {
+    final players = <LeaderboardPlayer>[
+      LeaderboardPlayer(
+        id: currentPlayerId,
+        name: currentPlayerName,
+        score: currentPlayerScore,
+        avatarUrl: currentPlayerAvatarUrl,
+      ),
+      const LeaderboardPlayer(
+        id: 'remote-1',
+        name: 'Lexi',
+        score: 95,
+      ),
+      const LeaderboardPlayer(
+        id: 'remote-2',
+        name: 'Arjun',
+        score: 88,
+      ),
+      const LeaderboardPlayer(
+        id: 'remote-3',
+        name: 'Mina',
+        score: 82,
+      ),
+      const LeaderboardPlayer(
+        id: 'remote-4',
+        name: 'Zoe',
+        score: 76,
+      ),
+    ];
+    players.sort((a, b) => b.score.compareTo(a.score));
+    return players;
+  }
 
   Future<HostedRoomInfo> startHosting({int preferredPort = 4040}) async {
     await reset();

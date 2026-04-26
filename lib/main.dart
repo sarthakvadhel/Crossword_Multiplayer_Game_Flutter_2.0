@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
 import 'presentation/screens/game_screen.dart';
 import 'presentation/screens/home_screen.dart';
+import 'presentation/screens/leaderboard_screen.dart';
 import 'presentation/screens/multiplayer_lobby_screen.dart';
 import 'presentation/screens/profile_screen.dart';
 import 'presentation/screens/tournament_mode_screen.dart';
@@ -96,6 +97,12 @@ class _MainShellState extends ConsumerState<MainShell>
     );
   }
 
+  Future<void> _openLeaderboard() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const LeaderboardScreen()),
+    );
+  }
+
   Future<String?> _hostMultiplayerFromLobby(String name) async {
     final error = await ref.read(gameProvider.notifier).hostMultiplayer(name);
     if (error == null && mounted) {
@@ -149,6 +156,7 @@ class _MainShellState extends ConsumerState<MainShell>
               onRestart: _startSoloGame,
               onMultiplayer: _openMultiplayerLobby,
               onTournament: _startTournamentMode,
+              onLeaderboard: _openLeaderboard,
               statusText: gameState.connectionStatus,
               roomCode: gameState.sessionCode,
               isMultiplayerActive: gameState.isMultiplayer,

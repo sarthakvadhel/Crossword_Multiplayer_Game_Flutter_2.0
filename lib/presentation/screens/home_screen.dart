@@ -12,6 +12,7 @@ class HomeScreen extends StatelessWidget {
     required this.onRestart,
     required this.onMultiplayer,
     required this.onTournament,
+    required this.onLeaderboard,
     required this.statusText,
     required this.roomCode,
     required this.isMultiplayerActive,
@@ -21,6 +22,7 @@ class HomeScreen extends StatelessWidget {
   final Future<void> Function() onRestart;
   final Future<void> Function() onMultiplayer;
   final Future<void> Function() onTournament;
+  final Future<void> Function() onLeaderboard;
   final String statusText;
   final String? roomCode;
   final bool isMultiplayerActive;
@@ -41,6 +43,15 @@ class HomeScreen extends StatelessWidget {
                   fontSize: 36,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF1A2F5A),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  onPressed: onLeaderboard,
+                  icon: const Icon(Icons.leaderboard_rounded),
+                  label: const Text('Leaderboard'),
                 ),
               ),
               const SizedBox(height: 36),
