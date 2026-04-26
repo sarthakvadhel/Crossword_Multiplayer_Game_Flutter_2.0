@@ -9,11 +9,16 @@ final authProvider =
 });
 
 class AuthNotifier extends StateNotifier<GoogleSignInAccount?> {
-  AuthNotifier(this._authService) : super(null);
+  AuthNotifier(this._authService) : super(_authService.currentUser);
 
   final AuthService _authService;
 
   Future<void> signIn() async {
     state = await _authService.signIn();
+  }
+
+  Future<void> signOut() async {
+    await _authService.signOut();
+    state = null;
   }
 }
