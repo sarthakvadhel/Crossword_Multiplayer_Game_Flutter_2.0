@@ -48,7 +48,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Edit profile'),
+          title: const Text('Edit Profile'),
           content: TextField(
             controller: controller,
             decoration: const InputDecoration(
@@ -82,12 +82,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final user = ref.watch(authProvider);
     final gameState = ref.watch(gameProvider);
     final username = _nameOverride ?? user?.displayName ?? gameState.player.name;
-    final estimatedWins = gameState.player.streak;
-    final estimatedLosses = gameState.opponent.streak;
+    final hasActiveMatch = gameState.isMultiplayer && gameState.hasOpponent;
+    final matchWon = hasActiveMatch &&
+        gameState.player.score > gameState.opponent.score;
+    final matchLost = hasActiveMatch &&
+        gameState.player.score < gameState.opponent.score;
+    final wins = matchWon ? 1 : 0;
+    final losses = matchLost ? 1 : 0;
     final ranking = _rankingFromScore(gameState.player.score);
     final winRate = _calculateWinRatePercent(
-      wins: estimatedWins,
-      losses: estimatedLosses,
+      wins: wins,
+      losses: losses,
     );
 
     return SafeArea(
@@ -128,8 +133,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           const SizedBox(height: 16),
           _StatsCard(
             multiplayerScore: gameState.player.score,
-            wins: estimatedWins,
-            losses: estimatedLosses,
+            wins: wins,
+            losses: losses,
             ranking: ranking,
             winRate: '$winRate%',
           ),
