@@ -43,10 +43,12 @@ class LocalMultiplayerService {
     required int currentPlayerScore,
     String? currentPlayerAvatarUrl,
   }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 220));
+
     final players = <LeaderboardPlayer>[
       LeaderboardPlayer(
         id: currentPlayerId,
-        name: currentPlayerName,
+        name: currentPlayerName.trim().isEmpty ? 'You' : currentPlayerName,
         score: currentPlayerScore,
         avatarUrl: currentPlayerAvatarUrl,
       ),
@@ -72,7 +74,7 @@ class LocalMultiplayerService {
       ),
     ];
     players.sort((a, b) => b.score.compareTo(a.score));
-    return players;
+    return List<LeaderboardPlayer>.unmodifiable(players);
   }
 
   Future<HostedRoomInfo> startHosting({int preferredPort = 4040}) async {
@@ -153,9 +155,21 @@ class LocalMultiplayerService {
         if (rawMessage is! String) {
           return;
         }
-        final decoded = jsonDecode(rawMessage);
-        if (decoded is Map<String, dynamic>) {
-          _messagesController.add(decoded);
+        try {
+          final decoded = jsonDecode(rawMessage);
+          if (decoded is Map<String, dynamic>) {
+            _messagesController.add(decoded);
+            return;
+          }
+          _messagesController.add({
+            'type': 'transport_error',
+            'message': 'Received malformed multiplayer payload.',
+          });
+        } on FormatException {
+          _messagesController.add({
+            'type': 'transport_error',
+            'message': 'Received invalid JSON from peer.',
+          });
         }
       },
       onError: (Object error) {

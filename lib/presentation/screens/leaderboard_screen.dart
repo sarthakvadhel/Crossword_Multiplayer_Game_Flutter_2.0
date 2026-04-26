@@ -6,55 +6,64 @@ import '../../core/services/local_multiplayer_service.dart';
 import '../../state/auth_provider.dart';
 import '../../state/game_provider.dart';
 
+final leaderboardProvider =
+    FutureProvider.autoDispose.family<List<LeaderboardPlayer>, _LeaderboardRequest>(
+  (ref, request) {
+    final service = ref.read(gameProvider.notifier).multiplayerService;
+    return service.fetchLeaderboard(
+      currentPlayerId: request.currentPlayerId,
+      currentPlayerName: request.currentPlayerName,
+      currentPlayerScore: request.currentPlayerScore,
+      currentPlayerAvatarUrl: request.currentPlayerAvatarUrl,
+    );
+  },
+);
+
 class LeaderboardScreen extends ConsumerWidget {
   const LeaderboardScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final gameState = ref.watch(gameProvider);
+    final currentPlayerId = ref.watch(gameProvider.select((s) => s.localPlayerId));
+    final fallbackPlayerName = ref.watch(gameProvider.select((s) => s.player.name));
+    final currentPlayerScore = ref.watch(gameProvider.select((s) => s.player.score));
     final authUser = ref.watch(authProvider);
-    final currentPlayerId = gameState.localPlayerId;
-    final currentPlayerName = authUser?.displayName ?? gameState.player.name;
-    final currentPlayerAvatarUrl = authUser?.photoUrl;
-    final currentPlayerScore = gameState.player.score;
-    final service = ref.read(gameProvider.notifier).multiplayerService;
+    final request = _LeaderboardRequest(
+      currentPlayerId: currentPlayerId,
+      currentPlayerName: authUser?.displayName ?? fallbackPlayerName,
+      currentPlayerScore: currentPlayerScore,
+      currentPlayerAvatarUrl: authUser?.photoUrl,
+    );
+    final leaderboardAsync = ref.watch(leaderboardProvider(request));
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Leaderboard'),
       ),
-      body: FutureBuilder<List<LeaderboardPlayer>>(
-        future: service.fetchLeaderboard(
-          currentPlayerId: currentPlayerId,
-          currentPlayerName: currentPlayerName,
-          currentPlayerScore: currentPlayerScore,
-          currentPlayerAvatarUrl: currentPlayerAvatarUrl,
+      body: leaderboardAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (_, _) => _LeaderboardErrorState(
+          onRetry: () => ref.invalidate(leaderboardProvider(request)),
         ),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final players = snapshot.data ?? const <LeaderboardPlayer>[];
+        data: (players) {
           if (players.isEmpty) {
-            return const Center(
-              child: Text(
-                'No leaderboard data available.',
-                style: TextStyle(color: AppColors.textMuted),
-              ),
-            );
+            return const _LeaderboardEmptyState();
           }
-          return ListView.builder(
+          return ListView.separated(
             physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
             itemCount: players.length,
+            separatorBuilder: (_, _) => const SizedBox(height: 10),
             itemBuilder: (context, index) {
               final player = players[index];
               final isCurrentUser = player.id == currentPlayerId;
-              return _LeaderboardTile(
-                rank: index + 1,
-                player: player,
-                isCurrentUser: isCurrentUser,
+              return RepaintBoundary(
+                child: _LeaderboardTile(
+                  rank: index + 1,
+                  player: player,
+                  isCurrentUser: isCurrentUser,
+                ),
               );
             },
           );
@@ -79,7 +88,6 @@ class _LeaderboardTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 220),
-      margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
         color: isCurrentUser ? AppColors.secondary : Colors.white,
         borderRadius: BorderRadius.circular(14),
@@ -89,6 +97,7 @@ class _LeaderboardTile extends StatelessWidget {
         ),
       ),
       child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
         leading: SizedBox(
           width: 60,
           child: Row(
@@ -148,6 +157,111 @@ class _LeaderboardTile extends StatelessWidget {
             fontWeight: FontWeight.w800,
             fontSize: 16,
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LeaderboardRequest {
+  const _LeaderboardRequest({
+    required this.currentPlayerId,
+    required this.currentPlayerName,
+    required this.currentPlayerScore,
+    this.currentPlayerAvatarUrl,
+  });
+
+  final String currentPlayerId;
+  final String currentPlayerName;
+  final int currentPlayerScore;
+  final String? currentPlayerAvatarUrl;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    return other is _LeaderboardRequest &&
+        currentPlayerId == other.currentPlayerId &&
+        currentPlayerName == other.currentPlayerName &&
+        currentPlayerScore == other.currentPlayerScore &&
+        currentPlayerAvatarUrl == other.currentPlayerAvatarUrl;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        currentPlayerId,
+        currentPlayerName,
+        currentPlayerScore,
+        currentPlayerAvatarUrl,
+      );
+}
+
+class _LeaderboardErrorState extends StatelessWidget {
+  const _LeaderboardErrorState({required this.onRetry});
+
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.error_outline_rounded,
+              color: AppColors.danger,
+              size: 34,
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'Could not load leaderboard.',
+              style: TextStyle(
+                color: AppColors.textDark,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh_rounded),
+              label: const Text('Retry'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LeaderboardEmptyState extends StatelessWidget {
+  const _LeaderboardEmptyState();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.leaderboard_outlined,
+              color: AppColors.textMuted,
+              size: 34,
+            ),
+            SizedBox(height: 10),
+            Text(
+              'No leaderboard data available yet.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.textMuted,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
       ),
     );
