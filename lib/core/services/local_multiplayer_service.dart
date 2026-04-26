@@ -169,7 +169,8 @@ class LocalMultiplayerService {
         } on FormatException {
           _messagesController.add({
             'type': 'transport_error',
-            'message': 'Received invalid JSON from peer.',
+            'message':
+                'Received invalid JSON from peer (${rawMessage.length} chars).',
           });
         }
       },
