@@ -31,6 +31,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     return 'Bronze';
   }
 
+  int _calculateWinRatePercent({
+    required int wins,
+    required int losses,
+  }) {
+    final matches = wins + losses;
+    if (matches <= 0) {
+      return 0;
+    }
+    return ((wins / matches) * 100).round();
+  }
+
   Future<void> _editProfileName(String currentName) async {
     final controller = TextEditingController(text: currentName);
     final nextName = await showDialog<String>(
@@ -73,9 +84,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final username = _nameOverride ?? user?.displayName ?? gameState.player.name;
     final wins = gameState.player.streak;
     final losses = gameState.opponent.streak;
-    final matches = wins + losses;
     final ranking = _rankingFromScore(gameState.player.score);
-    final winRate = matches == 0 ? 0 : ((wins / matches) * 100).round();
+    final winRate = _calculateWinRatePercent(wins: wins, losses: losses);
 
     return SafeArea(
       child: ListView(
