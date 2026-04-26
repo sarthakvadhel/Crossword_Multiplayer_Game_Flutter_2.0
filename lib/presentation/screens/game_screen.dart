@@ -23,6 +23,8 @@ class GameScreen extends ConsumerStatefulWidget {
 }
 
 class _GameScreenState extends ConsumerState<GameScreen> {
+  static const Duration _presenceBannerDuration = Duration(seconds: 2);
+
   ProviderSubscription<GameStateModel>? _gameSubscription;
   Timer? _presenceTimer;
   String? _presenceMessage;
@@ -61,7 +63,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       _presenceMessage = message;
       _presenceEpoch++;
     });
-    _presenceTimer = Timer(const Duration(seconds: 2), () {
+    _presenceTimer = Timer(_presenceBannerDuration, () {
       if (!mounted) {
         return;
       }
