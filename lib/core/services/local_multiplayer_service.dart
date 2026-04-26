@@ -163,7 +163,8 @@ class LocalMultiplayerService {
           }
           _messagesController.add({
             'type': 'transport_error',
-            'message': 'Received malformed multiplayer payload.',
+            'message':
+                'Expected Map<String, dynamic> but received ${decoded.runtimeType}.',
           });
         } on FormatException {
           _messagesController.add({

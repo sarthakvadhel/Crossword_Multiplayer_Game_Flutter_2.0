@@ -43,9 +43,13 @@ class LeaderboardScreen extends ConsumerWidget {
       ),
       body: leaderboardAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, _) => _LeaderboardErrorState(
-          onRetry: () => ref.invalidate(leaderboardProvider(request)),
-        ),
+        error: (error, stackTrace) {
+          debugPrint('Leaderboard fetch failed: $error');
+          debugPrint('$stackTrace');
+          return _LeaderboardErrorState(
+            onRetry: () => ref.invalidate(leaderboardProvider(request)),
+          );
+        },
         data: (players) {
           if (players.isEmpty) {
             return const _LeaderboardEmptyState();
