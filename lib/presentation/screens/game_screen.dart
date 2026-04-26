@@ -348,6 +348,11 @@ class _TypingDots extends StatefulWidget {
 
 class _TypingDotsState extends State<_TypingDots>
     with SingleTickerProviderStateMixin {
+  static const double _phaseOffsetPerDot = 0.2;
+  static const double _waveCenter = 0.5;
+  static const double _baseOpacity = 0.25;
+  static const double _waveOpacityRange = 0.75;
+
   late final AnimationController _controller;
 
   @override
@@ -366,9 +371,9 @@ class _TypingDotsState extends State<_TypingDots>
   }
 
   double _dotOpacity(int index) {
-    final phase = (_controller.value + (index * 0.2)) % 1.0;
-    final wave = 1 - ((phase - 0.5).abs() * 2);
-    return 0.25 + (wave * 0.75);
+    final phase = (_controller.value + (index * _phaseOffsetPerDot)) % 1.0;
+    final wave = 1 - ((phase - _waveCenter).abs() * 2);
+    return _baseOpacity + (wave * _waveOpacityRange);
   }
 
   @override
