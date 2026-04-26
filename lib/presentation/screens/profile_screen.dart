@@ -82,10 +82,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final user = ref.watch(authProvider);
     final gameState = ref.watch(gameProvider);
     final username = _nameOverride ?? user?.displayName ?? gameState.player.name;
-    final wins = gameState.player.streak;
-    final losses = gameState.opponent.streak;
+    final estimatedWins = gameState.player.streak;
+    final estimatedLosses = gameState.opponent.streak;
     final ranking = _rankingFromScore(gameState.player.score);
-    final winRate = _calculateWinRatePercent(wins: wins, losses: losses);
+    final winRate = _calculateWinRatePercent(
+      wins: estimatedWins,
+      losses: estimatedLosses,
+    );
 
     return SafeArea(
       child: ListView(
@@ -125,8 +128,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           const SizedBox(height: 16),
           _StatsCard(
             multiplayerScore: gameState.player.score,
-            wins: wins,
-            losses: losses,
+            wins: estimatedWins,
+            losses: estimatedLosses,
             ranking: ranking,
             winRate: '$winRate%',
           ),
