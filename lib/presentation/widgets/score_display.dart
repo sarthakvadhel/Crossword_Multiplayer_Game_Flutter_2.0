@@ -31,7 +31,7 @@ class ScoreDisplay extends StatelessWidget {
   }
 }
 
-class _ScorePill extends StatelessWidget {
+class _ScorePill extends StatefulWidget {
   const _ScorePill({
     required this.label,
     required this.score,
@@ -43,32 +43,74 @@ class _ScorePill extends StatelessWidget {
   final bool highlight;
 
   @override
+  State<_ScorePill> createState() => _ScorePillState();
+}
+
+class _ScorePillState extends State<_ScorePill> {
+  late int _previousScore;
+
+  @override
+  void initState() {
+    super.initState();
+    _previousScore = widget.score;
+  }
+
+  @override
+  void didUpdateWidget(covariant _ScorePill oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.score != widget.score) {
+      _previousScore = oldWidget.score;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 140,
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-      decoration: BoxDecoration(
-        color: highlight ? Colors.white : AppColors.background,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: highlight ? AppColors.primary : Colors.white),
-      ),
-      child: Column(
-        children: [
-          Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodyMedium,
+    return TweenAnimationBuilder<double>(
+      key: ValueKey('pill-${widget.label}-${widget.score}'),
+      duration: const Duration(milliseconds: 320),
+      curve: Curves.easeOutBack,
+      tween: Tween<double>(begin: 1.08, end: 1),
+      builder: (context, scale, child) {
+        return Transform.scale(scale: scale, child: child);
+      },
+      child: Container(
+        width: 140,
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+        decoration: BoxDecoration(
+          color: widget.highlight ? Colors.white : AppColors.background,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: widget.highlight ? AppColors.primary : Colors.white,
           ),
-          Text(
-            '$score',
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: AppColors.primary,
+        ),
+        child: Column(
+          children: [
+            Text(
+              widget.label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
-          ),
-        ],
+            TweenAnimationBuilder<double>(
+              duration: const Duration(milliseconds: 320),
+              curve: Curves.easeOutCubic,
+              tween: Tween<double>(
+                begin: _previousScore.toDouble(),
+                end: widget.score.toDouble(),
+              ),
+              builder: (context, value, _) {
+                return Text(
+                  '${value.round()}',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
